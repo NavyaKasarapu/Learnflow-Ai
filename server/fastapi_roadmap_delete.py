@@ -6,13 +6,14 @@ associated children records within a single database transaction.
 """
 
 import datetime
+import os
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy import Column, String, Integer, ForeignKey, Text, Float, DateTime, create_engine
 from sqlalchemy.orm import declarative_base, relationship, Session, sessionmaker
 
-# Database setup (for demonstration/illustration)
-DATABASE_URL = "postgresql://user:password@localhost/dbname"
+# Database setup (Read from environment variables for Render production)
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://user:password@localhost/dbname")
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()

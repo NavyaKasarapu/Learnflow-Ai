@@ -1,0 +1,35 @@
+# LearnFlow AI Render Blueprint Specification
+services:
+  # ---------------------------------------------------------------------------
+  # 1. LearnFlow AI Full-Stack Web Application (Node.js React + Express Server)
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: learnflow-ai
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: GEMINI_API_KEY
+        sync: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: learnflow-postgres
+          property: connectionString
+      - key: JWT_SECRET
+        sync: true
+      - key: FRONTEND_URL
+        sync: true
+
+# ---------------------------------------------------------------------------
+# 2. Managed PostgreSQL Database for Production State Persistence
+# ---------------------------------------------------------------------------
+databases:
+  - name: learnflow-postgres
+    plan: free
+    databaseName: learnflow
+    user: learnflow_admin

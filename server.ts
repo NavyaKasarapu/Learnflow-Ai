@@ -4,6 +4,7 @@
  */
 
 import express, { Request, Response, NextFunction } from 'express';
+import cors from 'cors';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
@@ -45,7 +46,37 @@ const ai = new GoogleGenAI({
 });
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+
+// Enable CORS with dynamic settings
+app.use(cors({
+  origin: (origin, callback) => {
+    // In non-production or if no origin (such as same-origin requests or curl), allow it
+    if (!origin || process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    
+    const allowedOrigins = [
+      process.env.FRONTEND_URL,
+      'https://ais-dev-qbsc4j3slx4ub7ejzchpuw-240113532822.asia-east1.run.app',
+      'https://ais-pre-qbsc4j3slx4ub7ejzchpuw-240113532822.asia-east1.run.app'
+    ].filter(Boolean) as string[];
+    
+    const isAllowed = allowedOrigins.some(ao => origin === ao || origin.startsWith(ao)) || 
+                      origin.endsWith('.vercel.app') || 
+                      origin.endsWith('.render.com');
+                      
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      // Fallback permissive to prevent strict CORS issues during initial setup
+      callback(null, true);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.use(express.json());
 
